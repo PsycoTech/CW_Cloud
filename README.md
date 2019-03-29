@@ -25,11 +25,11 @@ API Documentation
     Requires valid authentication *token*, or *username* and *password*, else failure status code `401` (unauthorized) is returned.
 
 - GET **/cryptocurrencies**
-update
+
     Get wide range of data feed for digital and crypto currencies. Optional arguments that can be passed along with the request:<br>
     - *function* - Get exhange rate of any pair of currencies `CURRENCY_EXCHANGE_RATE`. Get intraday time series for a digital currency `DIGITAL_CURRENCY_DAILY`. Default `CURRENCY_EXCHANGE_RATE`.
-    - *from_currency* - Currency to convert from which can be a [physical](https://www.alphavantage.co/physical_currency_list/) or [digital](https://www.alphavantage.co/digital_currency_list/).
-    - *to_currency* - Currency to convert to which can be a [physical](https://www.alphavantage.co/physical_currency_list/) or [digital](https://www.alphavantage.co/digital_currency_list/).
+    - *from_currency* - Currency to convert from which can be a [physical](https://www.alphavantage.co/physical_currency_list/) or [digital](https://www.alphavantage.co/digital_currency_list/). Default `USD`.
+    - *to_currency* - Currency to convert to which can be a [physical](https://www.alphavantage.co/physical_currency_list/) or [digital](https://www.alphavantage.co/digital_currency_list/). Default `BTC`.
     Requires valid authentication *token*, or *username* and *password*, else failure status code `401` (unauthorized) is returned.
 
 - POST **/users/new**
@@ -59,11 +59,11 @@ update
 Example
 -------
 
-Using `curl` to request Stock Time Series data with username and password authentication:
+Using `curl` to request Stock Time Series data with *username* and *password* authentication:
 
     $ curl -u maaz:qmul -i -X GET http://localhost:8080/stock_time_series?function=XYZ
 
-Using `curl` to request Stock Time Series data with authentication token:
+Using `curl` to request Stock Time Series data with authentication *token*:
 
     $ curl -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTM4NTY2OTY1NSwiaWF0IjoxMzg1NjY5MDU1fQ.eyJpZCI6MX0.XbOEFJkhjHJ5uRINh2JA1BPzXjSohKYDRT472wGOvjc:unused -i -X GET http://localhost:8080/stock_time_series
 
@@ -71,14 +71,14 @@ Using `curl` to create a new user:
 
     $ curl -i -X POST -H "Content-Type: application/json" -d '{"username":"maaz","password":"qmul"}' http://localhost:8080/users/new
 
-Using `curl` to update existing user's username and/or password with username and password authentication:
+Using `curl` to update existing user's *username* and/or *password* with username and password authentication:
 
     $ curl -u maaz:cloud -i -X PUT -H "Content-Type: application/json" -d '{"username":"alam","password":"computing"}' http://localhost:8080/users/update
 
-Using `curl` to delete an existing user with username and password authentication:
+Using `curl` to delete an existing user with *username* and *password* authentication:
 
     $ curl -u maaz:cloud -i -X DELETE -H "Content-Type: application/json" http://localhost:8080/users/delete
 
-Using `curl` to request a new token with username and password authentication:
+Using `curl` to request a new token with *username* and *password* authentication:
 
     $ curl -u miguel:python -i -X GET http://localhost:8080/token/new

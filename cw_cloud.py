@@ -1,5 +1,4 @@
-# ??? to resolve error caused when running in debug mode in virtual environment
-#
+# to resolve error caused when running in debug mode in virtual environment
 #!/usr/bin/env python3
 
 # flask container framework
@@ -22,12 +21,12 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSign
 
 # for password based authentication
 from flask_httpauth import HTTPBasicAuth
-#
+# initialize authentication object
 auth = HTTPBasicAuth()
 
 # cassandra database cluster
 from cassandra.cluster import Cluster
-#
+# which cluster to connect to by name
 cluster = Cluster(['cassandra'])
 # establish connection session to cassandra cluster
 session = cluster.connect()
@@ -104,6 +103,7 @@ def verify_password(username_or_token, password):
 @auth.login_required
 def get_auth_token():
     # generate a new authentication token for user id
+    # token = generate_auth_token(g.user.user_id)
     token = generate_auth_token(g.user['user_id'])
     # return generated authentication token
     return jsonify({ 'token': token.decode('ascii') })
@@ -176,7 +176,7 @@ def foreign_exchange():
 	if _function == 'CURRENCY_EXCHANGE_RATE':
 		_query = '&function={function}&from_currency={from_currency}&to_currency={to_currency}'.format(function = _function, from_currency = _from_currency, to_currency = _to_currency)
 	elif _function == 'FX_INTRADAY':
-		_query = '&function={function}&from_symbol={from_symbol}&to_symbol={to_symbol}'.format(function = _function, from_symbol = _from_symbol, to_symbol = _to_symbol)
+		_query = '&function={function}&from_symbol={from_symbol}&to_symbol={to_symbol}'.format(function = _function, from_symbol = _from_currency, to_symbol = _to_currency)
 	# http request to api
 	response = requests.get(url_template.format(endpoint = _endpoint, apikey = _apikey, query = _query))
 	# if request successful
@@ -192,26 +192,21 @@ def foreign_exchange():
 @auth.login_required
 def cryptocurrencies():
 	# set to defaults
-	_function = 'TIME_SERIES_INTRADAY'
-	_symbol = 'MSFT'
-	_interval = '5min'
-	_keywords = 'microsoft'
+	_function = 'CURRENCY_EXCHANGE_RATE'
+	_from_currency = 'USD'
+	_to_currency = 'BTC'
 	# override if present
 	if 'function' in request.args:
 		_function = request.args['function']
-	if 'symbol' in request.args:
-		_symbol = request.args['symbol']
-	if 'interval' in request.args:
-		_interval = request.args['interval']
-	if 'keywords' in request.args:
-		_keywords = request.args['keywords']
+	if 'from_currency' in request.args:
+		_from_currency = request.args['from_currency']
+	if 'to_currency' in request.args:
+		_to_currency = request.args['to_currency']
 	# set query based on function TYPE
-	if _function == 'TIME_SERIES_INTRADAY':
-		_query = '&function={function}&symbol={symbol}&interval={interval}'.format(function = _function, symbol = _symbol, interval = _interval)
-	elif _function == 'TIME_SERIES_DAILY' or _function == 'TIME_SERIES_DAILY_ADJUSTED' or _function == 'GLOBAL_QUOTE':
-		_query = '&function={function}&symbol={symbol}'.format(function = _function, symbol = _symbol)
-	elif _function == 'SYMBOL_SEARCH':
-		_query = '&function={function}&keywords={keywords}'.format(function = _function, keywords = _keywords)
+	if _function == 'CURRENCY_EXCHANGE_RATE':
+		_query = '&function={function}&from_currency={from_currency}&to_currency={to_currency}'.format(function = _function, from_currency = _from_currency, to_currency = _to_currency)
+	elif _function == 'DIGITAL_CURRENCY_DAILY':
+		_query = '&function={function}&symbol={symbol}&market={market}'.format(function = _function, symbol = _from_currency, market = _to_currency)
 	# http request to api
 	response = requests.get(url_template.format(endpoint = _endpoint, apikey = _apikey, query = _query))
 	# if request successful
@@ -234,26 +229,26 @@ def users_new():
 	password = request.json.get('password')
 	# missing both arguments
 	if username is None or password is None:
-		#
-		return jsonify({'error':'User already exists'}), 403
-	#
+		# return error for missing parameters
+		return jsonify({'error':'Missing parameters, Username and/or Password'}), 400
+	# get data for all users with username
 	rows = session.execute("SELECT * FROM users WHERE username = '{}'".format(username))
 	# existing user
 	for user in rows:
-		#
+		# return error for pre-existing user account for given parameters
 		return jsonify({'error':'User already exists'}), 403
-	#
+	# create new user account
 	rows = session.execute("INSERT INTO users (username, password_hash) VALUES ('{}','{}')".format(username, hash_password(password)))
-	#
+	# retrieve created user data
 	rows = session.execute("SELECT * FROM users WHERE username = '{}'".format(username))
-	#
+	# if successful
 	for user in rows:
-		#
+		# get user id
 		user_id = user['id']
-		#
+		# return user id with a 201 created status
 		return jsonify({ 'username': username }), 201, {'Location': url_for('get_user', id = user_id, _external = True)}
-	#
-	return jsonify({'error':'Failed to create user'}), 404
+	# if user not created
+	return jsonify({'error':'Failed to create user'}), 500
 
 # curl -u maaz:cloud -i -X PUT -H "Content-Type: application/json" -d '{"username":"alam","password":"computing"}' http://localhost:8080/users/update
 # curl -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTM4NTY2OTY1NSwiaWF0IjoxMzg1NjY5MDU1fQ.eyJpZCI6MX0.XbOEFJkhjHJ5uRINh2JA1BPzXjSohKYDRT472wGOvjc:unused -i -X POST -H "Content-Type: application/json" -d '{"username":"alam","password":"computing"}' http://localhost:8080/users/update
@@ -267,22 +262,20 @@ def users_update():
 	password = request.json.get('password')
 	# missing both arguments
 	if username is None and password is None:
-		#
+		# return error for missing parameters
 		return jsonify({'error':'Missing arguments, Username and/or Password'}), 400
-	#
+	# if username provided
 	if not username is None:
-		#
-		# session.execute("UPDATE users SET username = '{}' WHERE user_id = '{}'".format(g.user.user_id))
-		session.execute("UPDATE users SET username = '{}' WHERE user_id = '{}'".format(g.user['user_id']))
-		# return jsonify({'success':'Username updated'})
-	#
+		# update username for current user
+		# session.execute("UPDATE users SET username = '{}' WHERE user_id = '{}'".format(username, g.user.user_id))
+		session.execute("UPDATE users SET username = '{}' WHERE user_id = '{}'".format(username, g.user['user_id']))
+	# if password provided
 	if not password is None:
-		#
-		# session.execute("UPDATE users SET password = '{}' WHERE user_id = '{}'".format(g.user.user_id))
-		session.execute("UPDATE users SET password = '{}' WHERE user_id = '{}'".format(g.user['user_id']))
-		# return jsonify({'success':'Password updated'})
-	#
-	return jsonify({'error':'Updated Username and/or Password'}), 200
+		# update password for current user
+		# session.execute("UPDATE users SET password = '{}' WHERE user_id = '{}'".format(password, g.user.user_id))
+		session.execute("UPDATE users SET password = '{}' WHERE user_id = '{}'".format(password, g.user['user_id']))
+	# return success response
+	return jsonify({'success':'Updated Username and/or Password'}), 200
 
 # curl -u maaz:cloud -i -X DELETE -H "Content-Type: application/json" http://localhost:8080/users/delete
 # remove existing user
@@ -290,11 +283,12 @@ def users_update():
 # resource requires authentication
 @auth.login_required
 def delete_users():
-	#
+	# remove current user data
 	# session.execute("DELETE FROM users WHERE user_id = '{}'".format(g.user.user_id))
 	session.execute("DELETE FROM users WHERE user_id = '{}'".format(g.user['user_id']))
-	# g.user = None
-	#
+	# remove stored user info
+	g.user = None
+	# return success response
 	return jsonify({'success':'User deleted'}), 200
 
 #
@@ -303,5 +297,5 @@ def delete_users():
 
 #
 if __name__ == '__main__':
-	#
+	# required ip and port when deploying
 	app.run(host='0.0.0.0',port=8080)
