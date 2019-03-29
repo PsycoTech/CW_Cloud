@@ -1,0 +1,130 @@
+Alpha Vantage API Key:
+M6VDQ11CU9QINQ4F
+
+Alpha Vantage Documentation:
+https://www.alphavantage.co/documentation/
+
+Creating Web APIs with Python and Flask:
+https://programminghistorian.org/en/lessons/creating-apis-with-python-and-flask
+
+Designing a RESTful API with Python and Flask:
+https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
+
+Visuals:
+Stocks Time Series by Global Equity Type [e.g. MSFT]
+Exchange Rates
+Cryptocurrencies
+Technical Indicators
+Sector Performances
+
+Pages:
+Main [all visuals]
+Login
+Create Account
+Manage Accounts
+
+Functionality:
+Https
+Hash-based Authentication
+Load Balancing
+Scalability
+User Accounts
+User Access Management
+
+--- Technicals ---
+
+User Roles [Guest, User, SuperUser]
+Guest [Create, Login]
+SuperUser [Create, Login, Logout, Delete, Disable, Enable]
+
+Python
+Flask
+Google Cloud
+Cassandra
+Kubernetes
+
+--- 
+
+Parameters [Required]
+[X] * apikey
+* session id/authentication key
+- username
+- password
+
+Parameters [Optional]
+ - function
+ - symbol
+ - interval
+[?] - outputsize
+[?] - datatype
+- keywords
+- from_currency
+- to_currency
+- from_symbol
+- to_symbol
+- market
+- time_period
+- series_type
+- fastperiod
+- slowperiod
+- signalperiod
+- fastmatype
+- slowmatype
+- signalmatype
+
+GET
+- logout
+[X] - stock time series [intraday, daily, daily_adjusted, quote_endpoint, search_endpoint]
+- foreign exchange (fx) [exchange_rates, intraday]
+- cryptocurrencies [exhange_rates, daily]
+- technical indicators [sma, ema, macd, rsi, adx, cci, aroon, ad, obv]
+- sector performances [sector]
+- watchlist
+- view history
+
+POST
+- login
+- create user
+- add to watchlist
+
+PUT
+- update user password
+
+DELETE
+- remove user
+- remove from watchlist
+
+---
+
+Okta Org URL	https://dev-900862.okta.com
+Client ID 		0oaectxnrZHtN1H4J356
+Client Secret	QJO5Qm9eHgoA_bTg4j57lrb8bzFFJ7UfkZL-rVWi
+Login Token		00Tbjpsrq-VDuFqSHaUhXH8UcHPI86gRyDoN75w6lN
+
+pip install flask-oidc
+pip install okta
+
+g.user.profile.firstName
+g.user.id
+g.user
+
+---
+
+>user
+id
+username
+password_hash
+
+wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+sudo unzip -d /usr/local/sbin platform-tools-latest-linux.zip
+sudo wget -O /usr/local/sbin/adb https://raw.githubusercontent.com/NicolasBernaerts/ubuntu-scripts/master/android/adb
+sudo wget -O /usr/local/sbin/fastboot https://raw.githubusercontent.com/NicolasBernaerts/ubuntu-scripts/master/android/fastboot
+sudo chmod +x /usr/local/sbin/platform-tools/adb /usr/local/sbin/adb
+sudo chmod +x /usr/local/sbin/platform-tools/fastboot /usr/local/sbin/fastboot
+
+mkdir --parent $HOME/.android
+wget -O $HOME/.android/adb_usb.ini https://raw.githubusercontent.com/NicolasBernaerts/ubuntu-scripts/master/android/adb_usb.ini
+
+sudo wget -O /etc/udev/rules.d/51-android.rules https://raw.githubusercontent.com/NicolasBernaerts/ubuntu-scripts/master/android/51-android.rules
+sudo chmod a+r /etc/udev/rules.d/51-android.rules
+sudo service udev restart

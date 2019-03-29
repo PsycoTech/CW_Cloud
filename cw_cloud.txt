@@ -1,0 +1,244 @@
+
+# check if python and pip installed 
+
+python --version
+pip --version
+
+# install flask 
+pip install flask
+
+# create project directory [MAC]
+$ mkdir -p ~/projects/api
+
+# create project directory [Windows]
+$ md projects
+$ cd projects
+$ md api
+
+# ~/projects/api/api.py
+import flask
+from flask import request,jsonify, make_request, url_for
+
+# create flask application object 
+app = flask.Flask(__name__)
+# start debugger to display error messages instead of just 'Bad Gateway'
+app.config["DEBUG"] = True
+
+# create test data
+books = [
+	{'id':0,
+	'title':'A fire upon the deep'},
+	{'id':1,
+	'title':'Dhalgren'}
+]
+
+# map URL [Uniform Resource Locator]
+@app.errorhandler(404)
+def page_not_found(e):
+	# return "<h1>404</h1><p>The resource could not be found</p>",404
+	# more api friendly response
+	return make_response(jsonify({'error':'Not found'}),404)
+
+# http://127.0.0.1:5000
+@app.route('/',methods=["GET"])
+def home():
+	return "<h1>Distant Reading Archive</h1><p>Prototype API</p>"
+
+# http://127.0.0.1:5000/api/v1/resources/books/all
+@app.route('/api/v1/resources/books/all',methods=['GET'])
+def api_all():
+	return jsonify(books)
+
+# http://127.0.0.1:5000/api/v1/resources/books?id=0
+@app.route('/api/v1/resources/books',methods=['GET'])
+def api_id():
+	# request.args.get('id')
+	if 'id' in request.args:
+		id = int(request.args['id'])
+	else:
+		return "Error: No id field provided"
+
+	#results = []
+	#for book in books:
+	#	if book['id'] == id:
+	#		results.append(book)
+	
+	results = [book for book in books if book['id'] == id]
+	if len(results) == 0
+		abort(404)
+
+	return jsonify({'results':results})
+
+@app.route('/api/v1/resources/books',methods=['POST'])
+def create_task():
+	if not request.json or not 'title' in request.json:
+		abort(400)
+	task = {'id':tasks[-1]['id'] + 1,
+			'title':request.json['title'],
+			'description':request.json.get('description',""),
+			'done':False}
+	tasks.append(task)
+	return jsonify({'task':task}),201
+
+@app.route('/todo/api/v1/tasks/<int:id>',methods=['PUT'])
+def update_task(id):
+	task = [task for task in tasks if task['id'] == id]
+	if len(task) == 0:
+		abort(400)
+	if not request.json:
+		abort(400)
+	if 'title' in request.json and type(request.json['title']) != unicode:
+		abort(400)
+	if 'description' in request.json and type(request.json['title']) is not unicode:
+		abort(400)
+	if 'done' in request.json and type(request.json['title']) is not bool:
+		abort(400)
+	task[0]['title'] = request.json.get('done', task[0]['title'])
+	return jsonify({'task':task[0]})
+
+@app.route('/api/v1/tasks/<int:id>',methods=['DELETE'])
+def delete_task(id):
+	task = [task for task in tasks if task['id'] == id]
+	if len(task):
+		abortt(404)
+	tasks.remove(task[0])
+	return jsonify({'result':True})
+
+# returning full URIs instead of just task IDs
+# - so user doesn't need to know how URIs work
+# - allows modfying URI format in future
+# - generate 'public' version of task
+# replace 'id' with 'uri' field
+def make_public_task(task):
+	new_task = {}
+	for field in task:
+		if field == task:
+			new_task['uri'] = url_for('get_task', id = task['id'], _external=True)
+		else:
+			new_task[field] = task[field]
+	return new_task
+
+@app.route('/todo/api/v1/tasks',methods=['GET'])
+def get_tasks():
+	return jsonify({'tasks':[make_public_task(task) for task in tasks]})
+
+# get password for given username
+@auth.get_password
+def get_password(username):
+	if username == 'miguel':
+		return 'python'
+	return None
+
+@auth.errorhandler
+def unauthorized():
+	return make_response(jsonify({'error':'Unauthorized access'}),401)
+
+if __name__ == '__main__':
+	app.run()
+
+# launch api
+$ cd projects/api
+$ chmod a+x app.py
+$ python api.py
+$ curl -i http://localhost:5000/...
+$ curl -i -H "Content-Type: application/json" -X POST -d '{"title":"Read a book"}' http://localhost:5000/...
+# windows shenanigans
+$ curl -i -H "Content-Type: application/json" -X POST -d '{"""title""":"""Read a book"""}' http://localhost:5000/...
+
+# security
+# - username and password
+$ flask/bin/pip install flask-httpauth
+
+---
+
+source ~/venvs/flaskproj/bin/activate
+python ~/Desktop/cw/FinanceAPI.py
+
+---
+
+> requirements.txt
+pip>=9.0.1
+Flask==0.12.2
+$ python -m pip install -U -r requirements.txt
+
+> config.py
+DEBUG = False
+
+> /instance/config.py
+DEBUG = True
+MY_API_KEY = "M6VDQ11CU9QINQ4F"
+API_ENDPOINT = "http://www.alphavantage.co/query?"
+
+--- Google Cloud [Week4] ---
+
+$ cd ~
+$ mkdir cw_cloud
+$ cd cw_cloud
+# create python file
+$ nano app.py
+> ...
+# create requirements file
+$ nano requirements.txt
+> Flask
+# create docker image
+$ nano Dockerfile
+> FROM python:3.7-alpine
+> WORKDIR /myapp
+> COPY . /myapp
+> RUN pip install -r requirements.txt
+> EXPOSE 80
+> CMD ["python", "app.py"]
+# build docker image
+$ docker build . --tag=cw_cloud:v1
+# check existing [built] images
+$ docker images
+# create and run container instance
+$ docker run -p 8080:80 cw_cloud:v1
+
+--- Garbage
+
+# GET users by id
+# @app.route('/users',methods=['GET'])
+# @oidc.require_login
+# def get_users(user_id):
+# 	rows = session.execute("SELECT * FROM users WHERE user_id = '{}'".format(user_id))
+# 	users = {}
+# 	for user in rows:
+# 		users.append('{}, {}'.format(user_id, user.password))
+# 	if len(users) == 0:
+# 		return jsonify({'error':'User not found'}), 404
+# 	return jsonify({'success':users})
+
+# POST users
+# @app.route('/users/<user_id>',methods=['POST'])
+# def create_users(user_id, password):
+# 	session.execute("INSERT INTO users (user_id, password) VALUES ('{}', '{}')".format(user_id, password))
+# 	return jsonify({'success':'True'})
+
+# PUT users
+# @app.route('/users/<id>',methods=['PUT'])
+# @oidc.require_login
+# def update_users(user_id, password):
+# 	rows = session.execute("SELECT * FROM users WHERE user_id = '{}'".format(username))
+# 	for user in rows:
+# 		session.execute("UPDATE users SET password = '{}' WHERE user_id = '{}'".format(password, user_id))
+# 		return jsonify({'success':'True'})
+# 	return jsonify({'error':'User not found'}), 404
+
+# DELETE users BY name
+# @app.route('/users/<user_id>',methods=['DELETE'])
+# @oidc.require_login
+# def delete_users(user_id):
+# 	session.execute("DELETE FROM users WHERE user_id = '{}'".format(user_id))
+# 	return jsonify({'success':'True'})
+
+# @app.route('/login')
+# # @oidc.require_login
+# def login():
+# 	# redirect(url_for(".stock_time_series"))
+# 	return jsonify({'success':url_for(".stock_time_series")}), 200
+
+# @app.route('/logout')
+# def logout():
+# 	# oidc.logout()
+# 	return jsonify({'error':'User not found'}), 404
