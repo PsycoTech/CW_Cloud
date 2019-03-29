@@ -13,6 +13,7 @@ API Documentation
     - *symbol* - The equity of interest. Default `MSFT`.
     - *interval* - `1min`, update`5min`, `15min`, `30min`, `60min` interval between two consecutive data points in the time series. Default `5min`.
     - *keywords* - A text string to search for. Default `microsoft`.<br>
+
     Requires valid authentication *token*, or *username* and *password*, else failure status code `401` (unauthorized) is returned.
 
 - GET **/foreign_exchange**
@@ -22,6 +23,7 @@ API Documentation
     - *from_symbol* - Currency to convert from. Three letter symbol from the [forex currency list](https://www.alphavantage.co/physical_currency_list/). Default `USD`.
     - *to_symbol* - Currency to convert to. Three letter symbol from the [forex currency list](https://www.alphavantage.co/physical_currency_list/). Default `BTC`.
     - *interval* - `1min`, `5min`, `15min`, `30min`, `60min` interval between two consecutive data points in the time series. Default `5min`.<br>
+
     Requires valid authentication *token*, or *username* and *password*, else failure status code `401` (unauthorized) is returned.
 
 - GET **/cryptocurrencies**
@@ -30,6 +32,7 @@ API Documentation
     - *function* - Get exhange rate of any pair of currencies `CURRENCY_EXCHANGE_RATE`. Get intraday time series for a digital currency `DIGITAL_CURRENCY_DAILY`. Default `CURRENCY_EXCHANGE_RATE`.
     - *from_currency* - Currency to convert from which can be a [physical](https://www.alphavantage.co/physical_currency_list/) or [digital](https://www.alphavantage.co/digital_currency_list/). Default `USD`.
     - *to_currency* - Currency to convert to which can be a [physical](https://www.alphavantage.co/physical_currency_list/) or [digital](https://www.alphavantage.co/digital_currency_list/). Default `BTC`.<br>
+
     Requires valid authentication *token*, or *username* and *password*, else failure status code `401` (unauthorized) is returned.
 
 - POST **/users/new**
@@ -37,6 +40,7 @@ API Documentation
     Creates a new user account with given username and password. Required parameters:<br>
     - *username* - username of the new user account.
     - *password* - password for the new user account.<br>
+
     If user already exists, status code `403` (forbidden) is returned.
 
 - PUT **/users/update**
@@ -44,6 +48,7 @@ API Documentation
     Updates an existing user's username and/or password with given username and password. Required parameters:<br>
     - *username* - username of the existing user account.
     - *password* - password for the existing user account.<br>
+
     Requires valid authentication *token*, or *username* and *password*, else failure status code `401` (unauthorized) is returned.
 
 - DELETE **/users/delete**
